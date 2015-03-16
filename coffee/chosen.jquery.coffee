@@ -285,15 +285,10 @@ class Chosen extends AbstractChosen
 
   search_results_mouseover: (evt) ->
     target = if $(evt.target).hasClass "active-result" then $(evt.target) else $(evt.target).parents(".active-result").first()
-    if target && evt.shiftKey
-      this.result_do_highlight(target)
-      this.result_select(evt)
-    if target
-      this.result_do_highlight(target)
+    this.result_do_highlight( target ) if target
 
   search_results_mouseout: (evt) ->
-    if $(evt.target).hasClass "active-result" or $(evt.target).parents('.active-result').first()
-      this.result_clear_highlight()
+    this.result_clear_highlight() if $(evt.target).hasClass "active-result" or $(evt.target).parents('.active-result').first()
 
   choice_build: (item) ->
     choice = $('<li />', { class: "search-choice" }).html("<span>#{this.choice_label(item)}</span>")
@@ -335,8 +330,7 @@ class Chosen extends AbstractChosen
     @current_selectedIndex = @form_field.selectedIndex
     @selected_item.find("abbr").remove()
 
-  result_add: (evt) ->
-    alert('asd');
+  result_select: (evt) ->
     if @result_highlight
       high = @result_highlight
 
@@ -348,7 +342,6 @@ class Chosen extends AbstractChosen
 
       if @is_multiple
         high.removeClass("active-result")
-        high.addClass("result-selected")
       else
         this.reset_single_select_options()
 
@@ -363,50 +356,7 @@ class Chosen extends AbstractChosen
       else
         this.single_set_selected_text(this.choice_label(item))
 
-#      this.results_hide() unless (evt.metaKey or evt.ctrlKey) and @is_multiple
-
-      @search_field.val ""
-
-      @form_field_jq.trigger "change", {'selected': @form_field.options[item.options_index].value} if @is_multiple || @form_field.selectedIndex != @current_selectedIndex
-      @current_selectedIndex = @form_field.selectedIndex
-
-      evt.preventDefault()
-
-      this.search_field_scale()
-
-  result_select: (evt) ->
-    if @result_highlight
-      high = @result_highlight
-
-      if high.hasClass("result-selected")
-        return false
-
-      if !evt.shiftKey
-        this.result_clear_highlight()
-
-      if @is_multiple and @max_selected_options <= this.choices_count()
-        @form_field_jq.trigger("chosen:maxselected", {chosen: this})
-        return false
-
-      if @is_multiple
-        high.removeClass("active-result")
-        high.addClass("result-selected")
-      else
-        this.reset_single_select_options()
-
-      item = @results_data[ high[0].getAttribute("data-option-array-index") ]
-      item.selected = true
-
-      @form_field.options[item.options_index].selected = true
-      @selected_option_count = null
-
-      if @is_multiple
-        this.choice_build item
-      else
-        this.single_set_selected_text(this.choice_label(item))
-
-      if (!((evt.metaKey || evt.ctrlKey || evt.shiftKey) && this.is_multiple))
-        this.results_hide()
+      this.results_hide() unless (evt.metaKey or evt.ctrlKey) and @is_multiple
 
       @search_field.val ""
 
@@ -533,9 +483,6 @@ class Chosen extends AbstractChosen
         evt.preventDefault()
         this.keydown_arrow()
         break
-#      when 16
-#        this.result_add
-#        break
 
   search_field_scale: ->
     if @is_multiple
